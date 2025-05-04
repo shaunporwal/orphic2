@@ -22,6 +22,7 @@ pub mod prompts;
 
 const GPT_35_TURBO: &'static str = "gpt-3.5-turbo";
 const GPT_4: &'static str = "gpt-4";
+const GPT_4_TURBO: &'static str = "gpt-4-turbo";
 
 #[derive(Debug)]
 struct UserAbort();
@@ -88,7 +89,7 @@ async fn verify_json(client: &Client, input: &String) -> Result<Option<String>, 
 
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
-        .model("gpt-3.5-turbo")
+        .model(GPT_35_TURBO)
         .messages(history)
         .build()?;
 
@@ -232,7 +233,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .arg(
             Arg::new("debug")
             .short('d')
-            .long("verbose")
+            .long("debug")
             .action(ArgAction::SetTrue)
             .help("Display raw GPT output")
         )
@@ -244,11 +245,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .help("Execute commands without confirmation")
         )
         .arg(
-            Arg::new("gpt4")
-            .short('4')
-            .long("gpt4")
-            .action(ArgAction::SetTrue)
-            .help("Use GPT-4 instead of GPT-3.5")
+            Arg::new("model")
+            .short('m')
+            .long("model")
+            .value_parser([GPT_35_TURBO, GPT_4, GPT_4_TURBO])
+            .default_value(GPT_4_TURBO)
+            .help("Specify the GPT model to use (default: gpt-4-turbo)")
         )
         .get_matches();
 
@@ -257,7 +259,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         interpret:   matches.get_flag("interpret"),
         debug:       matches.get_flag("debug"),
         unsafe_mode: matches.get_flag("unsafe"),
-        model: if matches.get_flag("gpt4") { GPT_4 } else { GPT_35_TURBO }
+        model: matches.get_one::<String>("model").map(|s| s.as_str()).unwrap_or(GPT_4_TURBO),
     };
 
     let client = Client::new();
