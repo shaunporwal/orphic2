@@ -3,7 +3,8 @@
 
 ---
 ### Overview
-Orphic is a CLI tool that uses GPT to translate complex tasks into shell commands to be executed on the system. 
+Orphic is a CLI tool that uses OpenAI GPT models to translate natural-language tasks into shell commands executed on your system.  
+As of the current version, **Orphic defaults to the `gpt-4-turbo` model**. You can explicitly choose a different model (e.g. `gpt-4` or `gpt-3.5-turbo`) with the `--model` flag detailed below.  
 It excels at tasks that are relatively straightforward but require complex and obscure commands to accomplish.
 
 ```
@@ -34,7 +35,9 @@ Orphic is designed to be used like you would use any other CLI tool.
 
 `-u` or `--unsafe` will execute commands without user verification.
 
-`-4` or `--gpt4` will attempt to use GPT-4 instead of GPT-3.5-Turbo. Note that this will only work if your OpenAI account has access to the model.
+`-m <MODEL>` or `--model <MODEL>` lets you pick which GPT model to use.  
+Supported values: `gpt-4-turbo` (default), `gpt-4`, `gpt-3.5-turbo`.  
+Example: ``orphic -m gpt-3.5-turbo "list all *.rs files"``
 
 `-i` or `--interpret` will describe the output of the task in natural language (note that this is generally very slow).
 ```

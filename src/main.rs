@@ -22,6 +22,7 @@ pub mod prompts;
 
 const GPT_35_TURBO: &'static str = "gpt-3.5-turbo";
 const GPT_4: &'static str = "gpt-4";
+const GPT_4_TURBO: &'static str = "gpt-4-turbo";
 
 #[derive(Debug)]
 struct UserAbort();
@@ -42,7 +43,7 @@ impl fmt::Display for UserAbort {
 }
 impl Error for UserAbort {}
 
-fn get_prompt(key: &'static str) -> &str {
+fn get_prompt(key: &'static str) -> &'static str {
     assert!(prompts::PROMPTS[key].is_string());
     prompts::PROMPTS[key].as_str().unwrap()
 }
@@ -88,7 +89,7 @@ async fn verify_json(client: &Client, input: &String) -> Result<Option<String>, 
 
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
-        .model("gpt-3.5-turbo")
+        .model(GPT_35_TURBO)
         .messages(history)
         .build()?;
 
@@ -138,8 +139,6 @@ async fn try_command(client: &Client, input: String, history: &mut Vec<ChatCompl
 
     let response = client.chat().create(request).await?;
     let body = (response.choices[0]).message.content.to_owned();
-
-    if flags.debug && flags.unsafe_mode { println!("{}", body); }
 
     return match parse_command(client, &body).await? {
         Some(commands) => {
@@ -232,7 +231,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .arg(
             Arg::new("debug")
             .short('d')
-            .long("verbose")
+            .long("debug")
             .action(ArgAction::SetTrue)
             .help("Display raw GPT output")
         )
@@ -244,21 +243,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .help("Execute commands without confirmation")
         )
         .arg(
-            Arg::new("gpt4")
-            .short('4')
-            .long("gpt4")
-            .action(ArgAction::SetTrue)
-            .help("Use GPT-4 instead of GPT-3.5")
+            Arg::new("model")
+            .short('m')
+            .long("model")
+            .value_parser([GPT_35_TURBO, GPT_4, GPT_4_TURBO])
+            .default_value(GPT_4_TURBO)
+            .help("Specify the GPT model to use (default: gpt-4-turbo)")
         )
         .get_matches();
+
+    let selected_model = matches.get_one::<String>("model").map(|s| s.as_str()).unwrap_or(GPT_4_TURBO);
+    // Map the chosen model &str to one of our static constants so lifetimes line up
+    let model_static: &'static str = match selected_model {
+        GPT_35_TURBO => GPT_35_TURBO,
+        GPT_4 => GPT_4,
+        _ => GPT_4_TURBO, // default/fallback
+    };
 
     let flags = Flags {
         repl:        matches.get_flag("repl"),
         interpret:   matches.get_flag("interpret"),
         debug:       matches.get_flag("debug"),
         unsafe_mode: matches.get_flag("unsafe"),
-        model: if matches.get_flag("gpt4") { GPT_4 } else { GPT_35_TURBO }
+        model:       model_static,
     };
+
+    // Display selected model
+    println!("Using model: {}", flags.model);
 
     let client = Client::new();
 
