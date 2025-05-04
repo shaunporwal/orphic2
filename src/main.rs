@@ -31,7 +31,6 @@ struct UserAbort();
 struct Flags {
     repl:          bool,
     interpret:     bool,
-    debug:         bool,
     unsafe_mode:   bool,
     model: &'static str
 }
@@ -174,7 +173,7 @@ async fn repl(client: &Client, flags: Flags) -> Result<(), Box<dyn Error>> {
 
     loop {
        let mut input = String::new();
-       print!("orphic> ");
+       print!("orphic2> ");
        io::stdout().flush()?;
        io::stdin().read_line(&mut input)?;
        match input.as_str().trim() {
@@ -219,7 +218,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .short('r')
             .long("repl")
             .action(ArgAction::SetTrue)
-            .help("Start a REPL environment for orphic commands")
+            .help("Start a REPL environment for orphic2 commands")
         )
         .arg(
             Arg::new("interpret")
@@ -227,13 +226,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .long("interpret")
             .action(ArgAction::SetTrue)
             .help("Interpret output into natural language")
-        )
-        .arg(
-            Arg::new("debug")
-            .short('d')
-            .long("debug")
-            .action(ArgAction::SetTrue)
-            .help("Display raw GPT output")
         )
         .arg(
             Arg::new("unsafe")
@@ -263,7 +255,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let flags = Flags {
         repl:        matches.get_flag("repl"),
         interpret:   matches.get_flag("interpret"),
-        debug:       matches.get_flag("debug"),
         unsafe_mode: matches.get_flag("unsafe"),
         model:       model_static,
     };

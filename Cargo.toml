@@ -1,14 +1,14 @@
 [package]
-name = "orphic"
-version = "0.1.2"
+name = "orphic2"
+version = "0.1.0"
 edition = "2021"
-authors = ["Will Savage <wsavage6316@gmail.com>"]
-description = "A natural language interface for *nix systems.\n(Powered by ChatGPT)"
+authors = ["Shaun Porwal <your_email@example.com>"]
+description = "A natural language interface for *nix systems. (Fork of Orphic)"
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/ws-kj/Orphic"
-repsitory = "https://github.com/ws-kj/Orphic"
-keywords = ["cli", "ChatGPT", "LLM", "GPT"]
+homepage = "https://github.com/shaunporwal/orphic2"
+repository = "https://github.com/shaunporwal/orphic2"
+keywords = ["cli", "ChatGPT", "LLM", "GPT", "AI"]
 categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
